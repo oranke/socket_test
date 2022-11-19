@@ -25,9 +25,17 @@ type
   TMainForm = class(TForm)
     TickTimer: TTimer;
     XPManifest1: TXPManifest;
-    Button1: TButton;
+    Start_Button: TButton;
+    CliConnID_Edit: TEdit;
+    Label1: TLabel;
+    Packet01_Button: TButton;
+    Packet02_Button: TButton;
+    AccessDenine_Button: TButton;
     procedure TickTimerTimer(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
+    procedure Start_ButtonClick(Sender: TObject);
+    procedure Packet01_ButtonClick(Sender: TObject);
+    procedure Packet02_ButtonClick(Sender: TObject);
+    procedure AccessDenine_ButtonClick(Sender: TObject);
   private
     { Private declarations }
   public
@@ -52,6 +60,8 @@ end;
 procedure AcceptEvent(aConnIndex: U16; aPeer: PAnsiChar; aParam: Pointer); stdcall;
 begin
   WriteLn(aConnIndex, ' 억셉트 from ', aPeer);
+
+  TMainForm(aParam).CliConnID_Edit.Text := IntToStr(aConnIndex);
 
 end;
 
@@ -94,12 +104,40 @@ begin
   TickAllServer(GetTickCount);
 end;
 
-procedure TMainForm.Button1Click(Sender: TObject);
+procedure TMainForm.Start_ButtonClick(Sender: TObject);
 begin
   if not IsStarted then
     StartServer
   else
     StopServer
+end;
+
+// PID - $03 전송 테스트.
+procedure TMainForm.Packet01_ButtonClick(Sender: TObject);
+var
+  DataLen: WORD;
+  Data: Integer;
+begin
+  Data := 12345;
+  DataLen := SizeOf(Integer);
+
+  WriteLn(IsEnableToSend(StrToIntDef(CliConnID_Edit.Text, 0), SizeOf(Word)));
+  ToCli_SendPacketWArr(StrToIntDef(CliConnID_Edit.Text, 0), $03, 1, [DataLen], [@Data]);
+end;
+
+procedure TMainForm.Packet02_ButtonClick(Sender: TObject);
+var
+  a: WORD;
+begin
+  a := 33;
+  ToCli_BeginPacket(StrToIntDef(CliConnID_Edit.Text, 0), $03);
+  ToCli_SendBufferWArr(StrToIntDef(CliConnID_Edit.Text, 0), 1, [SizeOf(WORD)], [@a]);
+  ToCli_EndPacket(StrToIntDef(CliConnID_Edit.Text, 0));
+end;
+
+procedure TMainForm.AccessDenine_ButtonClick(Sender: TObject);
+begin
+  ToCli_AccessDenine(StrToIntDef(CliConnID_Edit.Text, 0), 32323, 52525);
 end;
 
 end.
