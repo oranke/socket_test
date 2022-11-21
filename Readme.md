@@ -259,8 +259,8 @@ end;
 
 ```
 
-서버는 접속 후 3초동안 아무런 행위가 없으면, 소켓 공격으로 판단하고 접속을 끊는다.  
-따라서 ConnectEvent 에서 연결 성공시 바로 로그온 처리를 하자. (Client2.exe 참고)
+서버는 접속 후 3초동안 아무런 행위가 없으면, 소켓 홀딩 공격으로 판단하고 접속을 끊는다.  
+따라서 ConnectEvent 에서 연결 성공 확인시 바로 로그온 처리를 하자. (Client2.exe 참고)
 
 서버에서 데이터가 TPacketRec 단위로 전달되면, DLL은 전달된 데이터의 인코딩을 풀고 PacketEvent 를 발생시킨다. 이 때 PID 는 ToCli_SendXXX 등의 인자값으로 전달되는 PID 값을 의미한다. 
 
@@ -308,7 +308,7 @@ const
 
 이를 통해 이론적으로 65536 - 256 * 2 가지의 패킷종류를 구분지을 수 있으며, 이는 어지간한 중대형 온라인 게임에 충분한 종류이다. 
 
-PID 만으로 이루어진 패킷은 ToSvr_SendPacketXArr() 함수를, SPID 로 세분화한 정보는 ToSvr_SendPacketX2Arr() 함수를 사용해 데이터를 전송한다.
+PID 만으로 이루어진 패킷은 ToSvr_SendPacketBArr()/ToSvr_SendPacketWArr() 함수를, SPID 로 세분화한 정보는 ToSvr_SendPacket2BArr()/ToSvr_SendPacket2WArr() 함수를 사용해 데이터를 전송한다.
 
 
 **패킷 전송 함수**
