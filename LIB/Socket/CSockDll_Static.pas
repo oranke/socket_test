@@ -1,18 +1,18 @@
-ï»¿{-----------------------------------------------------------------------------
+{-----------------------------------------------------------------------------
  Unit Name: CSockDll
  Author:    oranke_f
  Date:      2010-09-01
  Purpose:
-    CSock.dll, CSockE.dll ì— ëŒ€í•œ ì¸í„°íŽ˜ì´ìŠ¤ ìœ ë‹ˆíŠ¸.
+    CSock.dll, CSockE.dll ¿¡ ´ëÇÑ ÀÎÅÍÆäÀÌ½º À¯´ÏÆ®.
 
  History:
   2012-09-19
-    OpenConnection, CloseConnection ì— aPending ì¸ìž ì¶”ê°€.
-    ì—°ê²° ë° ì—°ê²°í•´ì œë¥¼ í‹±ì—ì„œ ì²˜ë¦¬í•˜ê²Œ ë˜ì–´ìžˆëŠ” êµ¬ì¡°ë¥¼
-    í˜¸ì¶œ ì¦‰ì‹œ ì²˜ë¦¬í•  ìˆ˜ ìžˆê²Œ ìˆ˜ì •í•¨.
+    OpenConnection, CloseConnection ¿¡ aPending ÀÎÀÚ Ãß°¡.
+    ¿¬°á ¹× ¿¬°áÇØÁ¦¸¦ Æ½¿¡¼­ Ã³¸®ÇÏ°Ô µÇ¾îÀÖ´Â ±¸Á¶¸¦
+    È£Ãâ Áï½Ã Ã³¸®ÇÒ ¼ö ÀÖ°Ô ¼öÁ¤ÇÔ.
 
   2021-04-13
-    ì •ì ë§í¬ê¸°ëŠ¥ ìœ ë‹ˆíŠ¸ë¡œ ë¶„ë¦¬.
+    Á¤Àû¸µÅ©±â´É À¯´ÏÆ®·Î ºÐ¸®.
 
 -----------------------------------------------------------------------------}
 
@@ -28,27 +28,27 @@ uses
   Windows, Classes, WinSock, ZLibEx, zhTypes;
 
 const
-  // ì ‘ê·¼ë¶ˆê°€. Len+PacketID+Reason(2). Len = 1+2 = 3
-  // Reasonì€ ì ‘ì†ì˜¤ë¥˜. ë­ 65536ê°€ì§€ëŠ” ë„˜ì§€ ì•Šê² ì§€..
-  // ì—¬ê¸°ì„œëŠ” F000 ì´í›„ë§Œ ì‚¬ìš©í•˜ê³  ë‚˜ë¨¸ì§€ëŠ” ì–´í”Œì—ì„œ ì •ì˜í•´ì„œ ì“´ë‹¤. 
+  // Á¢±ÙºÒ°¡. Len+PacketID+Reason(2). Len = 1+2 = 3
+  // ReasonÀº Á¢¼Ó¿À·ù. ¹¹ 65536°¡Áö´Â ³ÑÁö ¾Ê°ÚÁö..
+  // ¿©±â¼­´Â F000 ÀÌÈÄ¸¸ »ç¿ëÇÏ°í ³ª¸ÓÁö´Â ¾îÇÃ¿¡¼­ Á¤ÀÇÇØ¼­ ¾´´Ù. 
   ACCESS_DENINE = $FF;
-    ADID_WRONGPACKET     = $F0A0; // ìž˜ëª»ëœíŒ¨í‚·. ë‚ ì•„ì˜¤ì§€ ì•Šì•„ì•¼ í•  íŒ¨í‚·ì˜ ê²½ìš°..
-      ADID_ZEROPKT        = $F0A1; // ìœ ì €ì—ê²ŒëŠ” WRONGPACKETì„ ì „ì†¡. ì„œë²„ì´ë²¤íŠ¸ë¡œëŠ” ì„¸ë¶€ê°’ì„ ì‚¬ìš©.
+    ADID_WRONGPACKET     = $F0A0; // Àß¸øµÈÆÐÅ¶. ³¯¾Æ¿ÀÁö ¾Ê¾Æ¾ß ÇÒ ÆÐÅ¶ÀÇ °æ¿ì..
+      ADID_ZEROPKT        = $F0A1; // À¯Àú¿¡°Ô´Â WRONGPACKETÀ» Àü¼Û. ¼­¹öÀÌº¥Æ®·Î´Â ¼¼ºÎ°ªÀ» »ç¿ë.
       ADID_TOOLARGEPKT    = $F0A2;
-      ADID_SOMUCHPKT      = $F0A3; // ë„ˆë¬´ ë§Žì€ íŒ¨í‚·.
+      ADID_SOMUCHPKT      = $F0A3; // ³Ê¹« ¸¹Àº ÆÐÅ¶.
 
-    ADID_EXCEPTION       = $F00C; // ì²˜ë¦¬ì—ì„œ ì˜ˆì™¸ê°€ ë°œìƒí•œ íŒ¨í‚·.
+    ADID_EXCEPTION       = $F00C; // Ã³¸®¿¡¼­ ¿¹¿Ü°¡ ¹ß»ýÇÑ ÆÐÅ¶.
 
-    ADID_SVRBUG          = $F0FA; // ì„œë²„ì˜ ìˆ˜í–‰ì˜¤ë¥˜..
-    ADID_SERVER_FULL     = $F0FB; // ì„œë²„ ì ‘ì† í’€.
-    ADID_EMERGENCY       = $F0FC; // ê¸´ê¸‰ì¢…ë£Œ.
+    ADID_SVRBUG          = $F0FA; // ¼­¹öÀÇ ¼öÇà¿À·ù..
+    ADID_SERVER_FULL     = $F0FB; // ¼­¹ö Á¢¼Ó Ç®.
+    ADID_EMERGENCY       = $F0FC; // ±ä±ÞÁ¾·á.
 
-    ADID_OTHER           = $FFFF; // ë‚˜ì—´ë˜ì§€ ì•Šì€ ê¸°íƒ€ì´ìœ .
+    ADID_OTHER           = $FFFF; // ³ª¿­µÇÁö ¾ÊÀº ±âÅ¸ÀÌÀ¯.
 
 
-  // ìš”ì²­ ê±°ë¶€. Len+PID+Reason
+  // ¿äÃ» °ÅºÎ. Len+PID+Reason
   REQ_DENINE  = $FE;
-    RDID_OTHER           = $FFFF; // ë‚˜ì—´ë˜ì§€ ì•Šì€ ê¸°íƒ€ì´ìœ .
+    RDID_OTHER           = $FFFF; // ³ª¿­µÇÁö ¾ÊÀº ±âÅ¸ÀÌÀ¯.
 
 type
   TConnEventStatus = (ctConnected, ctDisconnected, ctConnectFailed);
@@ -149,7 +149,7 @@ var
   ToSvr_EndPacket     : TToSvr_EndPacket = nil;
 
 
-// ë¸íŒŒì´ì—ì„œ ì“°ê¸° íŽ¸í•˜ê²Œ..
+// µ¨ÆÄÀÌ¿¡¼­ ¾²±â ÆíÇÏ°Ô..
 function ToSvr_SendPacketBArr(
   const aPID: U8;
   const aBufCount: Integer;
