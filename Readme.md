@@ -149,6 +149,12 @@ procedure ToCli_AccessDenine(aConnIndex, aReason: U16; aCode: U32 = 0); stdcall;
 // 클라에서 RequestDenine 콜백 발생. 
 procedure ToCli_RequestDenine(aConnIndex, aReason: U16; aCode: U32 = 0); stdcall;  
 
+// 총 접속 허용수 리턴
+function GetConnectionCount: Word; stdcall;
+
+// 남은 접속 허용수 리턴
+function GetAvailableConnCount: Word; stdcall;
+
 ```
 
 ### 참고사항 
