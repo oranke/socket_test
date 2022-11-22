@@ -6,8 +6,13 @@
 
 ## 기본 개념
 
-DLL이 사용하는 패킷 구조는 다음과 같다. 
-ScramblePacket 빌드이므로 패킷은 해싱 및 인코딩 된다.  
+U8, I8, U32, I32 등의 자료형은 `zhTypes.pas` 에 정의되어 있다. 
+
+하나의 패킷은 2바이트 길이값 + 1바이트 패킷아이디 + 데이터 로 구분한다. 
+ScramblePacket 모드로 빌드된 DLL은 패킷 단위로 번호를 붙여 인코딩하고 검증용 해시를 첨부한다. 
+
+DLL에 정의된 패킷 구조는 다음과 같다. 
+
 
 ```pas
   TPacketRec = packed record
@@ -22,8 +27,12 @@ ScramblePacket 빌드이므로 패킷은 해싱 및 인코딩 된다.
   end;
 ```
 
-패킷 전송시 패킷 콜백에서는 패킷아이디(PID)와 디코딩된 패킷 데이터, 그리고 패킷 길이가 제공된다. 
+서버측에서 클라로 패킷을 보낼때는 ToCli_XXX 함수를 사용하며, 클라측에서 서버로 보낼때는 ToSvr_XXXX 함수를 사용한다. 
+패킷을 수신하면 PacketEvent 콜백이 실행되며 여기에 패킷아이디(PID)와 디코딩된 패킷 데이터, 그리고 패킷 길이가 전달된다. 
 
+```pas
+TPacketEvent = procedure (aPID: U8; aDataLen: U16; aData: PU8Array; aParam: Pointer); stdcall;
+```
 
 ## 서버 DLL 사용법. 
 
@@ -168,12 +177,12 @@ function GetAvailableConnCount: Word; stdcall;
 * DLL 이름 : CSockE.dll
 * 제어 유니트 : CSockDll.pas
 
-클라용 DLL의 함수들은 직접 노출하지 않고 GetFuncs() 를 사용해 동적으로 바인딩한다. 
-이는 해킹을 귀찮게 하려는 목적이다. 
-CSockDll_Static.pas 를 사용하면 CSockE.dll 을 실행파일 내부에 포함시킨다. 
-DLL 자체도 감춰지므로 해킹이 좀 더 귀찮아진다. 
+클라용 DLL의 함수들은 직접 노출하지 않고 GetFuncs() 를 사용해 동적으로 바인딩한다.  
+이는 해킹을 귀찮게 하려는 목적이다.  
+CSockDll_Static.pas 를 사용하면 CSockE.dll 을 실행파일 내부에 포함시킨다.  
+DLL 자체도 감춰지므로 해킹이 좀 더 귀찮아진다.  
 
-CSockDll_Static.pas 유니트를 사용하려면 DelphiZLib 가 필요하다. 
+CSockDll_Static.pas 유니트를 사용하려면 DelphiZLib 가 필요하다.  
 https://github.com/grandchef/delphizlib
 
 
@@ -262,7 +271,9 @@ end;
 서버는 접속 후 3초동안 아무런 행위가 없으면, 소켓 홀딩 공격으로 판단하고 접속을 끊는다.  
 따라서 ConnectEvent 에서 소켓 연결 확인시 바로 로그온 처리를 하자. (Client2.exe 참고)
 
-서버에서 데이터가 TPacketRec 단위로 전달되면, DLL은 전달된 데이터의 인코딩을 풀고 PacketEvent 를 발생시킨다. 이 때 PID 는 ToCli_SendXXX 등의 인자값으로 전달되는 PID 값을 의미한다. 
+서버에서 데이터가 TPacketRec 단위로 전달되면, DLL은 전달된 데이터의 인코딩을 풀고 PacketEvent 를 발생시킨다.  
+이 때 PID 는 ToCli_SendXXX 등의 인자값으로 전달되는 PID 값을 의미한다.  
+
 
 ### 연결 및 종료
 
@@ -307,6 +318,7 @@ const
 ```
 
 이를 통해 이론적으로 65536 - 256 * 2 가지의 패킷종류를 구분지을 수 있으며, 이는 어지간한 중대형 온라인 게임에 충분한 종류이다. 
+(PID $FF는 Access Denine, $FE는 Request Denine 으로 사용한다.)
 
 PID 만으로 이루어진 패킷은 ToSvr_SendPacketBArr()/ToSvr_SendPacketWArr() 함수를, SPID 로 세분화한 정보는 ToSvr_SendPacket2BArr()/ToSvr_SendPacket2WArr() 함수를 사용해 데이터를 전송한다.
 
