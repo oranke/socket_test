@@ -248,11 +248,19 @@ begin
 end;
 
 procedure TMainForm.Connect_ButtonClick(Sender: TObject);
+var
+  IP: TIPData; 
 begin
   if IsConnected then
-    CloseConnection
-  else
-    OpenConnection(PChar(SvrIP_Edit.Text), StrToIntDef(SvrPort_Edit.Text, 10102));
+  begin
+    CloseConnection;
+  end else
+  begin
+    IP := HostToIP(SvrIP_Edit.Text);
+
+    //OpenConnection(PChar(SvrIP_Edit.Text), StrToIntDef(SvrPort_Edit.Text, 10102));
+    OpenConnection2(IP, StrToIntDef(SvrPort_Edit.Text, 10102));
+  end;
 end;
 
 procedure TMainForm.ChatSend_ButtonClick(Sender: TObject);
